@@ -88,6 +88,20 @@ class OpenAICompatibleAPI {
         }.resume()
     }
 
+    /// Determines whether the model supports multimodal image inputs.
+    /// Local Ollama text-only models (like standard mistral) reject requests containing image_url blocks.
+    private var isMultimodalSupported: Bool {
+        if provider != "ollama" { return true }
+        let lowercasedModelName = model.lowercased()
+        return lowercasedModelName.contains("vision") ||
+               lowercasedModelName.contains("pixtral") ||
+               lowercasedModelName.contains("llava") ||
+               lowercasedModelName.contains("vl") ||
+               lowercasedModelName.contains("minicpm") ||
+               lowercasedModelName.contains("omni") ||
+               lowercasedModelName.contains("bakllava")
+    }
+
     /// Stream vision and chat requests to the selected OpenAI-compatible model.
     func analyzeImageStreaming(
         images: [(data: Data, label: String)],
@@ -114,28 +128,36 @@ class OpenAICompatibleAPI {
             messages.append(["role": "assistant", "content": assistantResponse])
         }
 
-        // Build current message with images + user prompt
-        var contentBlocks: [[String: Any]] = []
-        for image in images {
+        // Build current message. If the model supports multimodal inputs and images are present,
+        // package images and prompt as content blocks. Otherwise, provide plain text to avoid
+        // 400 errors from text-only models like mistral.
+        if isMultimodalSupported && !images.isEmpty {
+            var contentBlocks: [[String: Any]] = []
+            for image in images {
+                contentBlocks.append([
+                    "type": "text",
+                    "text": image.label
+                ])
+                let base64Image = image.data.base64EncodedString()
+                let mimeType = detectImageMediaType(for: image.data)
+                contentBlocks.append([
+                    "type": "image_url",
+                    "image_url": [
+                        "url": "data:\(mimeType);base64,\(base64Image)"
+                    ]
+                ])
+            }
             contentBlocks.append([
                 "type": "text",
-                "text": image.label
+                "text": userPrompt
             ])
-            let base64Image = image.data.base64EncodedString()
-            let mimeType = detectImageMediaType(for: image.data)
-            contentBlocks.append([
-                "type": "image_url",
-                "image_url": [
-                    "url": "data:\(mimeType);base64,\(base64Image)"
-                ]
+            messages.append(["role": "user", "content": contentBlocks])
+        } else {
+            messages.append([
+                "role": "user",
+                "content": userPrompt
             ])
         }
-        
-        contentBlocks.append([
-            "type": "text",
-            "text": userPrompt
-        ])
-        messages.append(["role": "user", "content": contentBlocks])
 
         let body: [String: Any] = [
             "model": model,

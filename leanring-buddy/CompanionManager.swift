@@ -107,11 +107,12 @@ final class CompanionManager: ObservableObject {
     /// Used by the panel to show accurate status text ("Active" vs "Ready").
     @Published private(set) var isOverlayVisible: Bool = false
 
-    /// The Claude or OpenAI-compatible model used for voice responses. Persisted to UserDefaults.
-    @Published var selectedModel: String = UserDefaults.standard.string(forKey: "selectedClaudeModel") ?? "claude-sonnet-4-6"
+    /// The local or cloud model used for voice responses. Persisted to UserDefaults.
+    /// Defaults to local "mistral" which runs via Ollama without requiring any API keys.
+    @Published var selectedModel: String = UserDefaults.standard.string(forKey: "selectedClaudeModel") ?? "mistral"
 
-    /// The local Ollama model name when Ollama is selected.
-    @Published var localOllamaModelName: String = UserDefaults.standard.string(forKey: "localOllamaModelName") ?? "llama3.2-vision"
+    /// The local Ollama model name when Ollama is selected. Defaults to "mistral".
+    @Published var localOllamaModelName: String = UserDefaults.standard.string(forKey: "localOllamaModelName") ?? "mistral"
 
     func setSelectedModel(_ model: String) {
         selectedModel = model
@@ -650,6 +651,8 @@ final class CompanionManager: ObservableObject {
                         client = OpenAICompatibleAPI(endpointURL: "\(Self.workerBaseURL)/openai-proxy", provider: "gemini", model: "gemini-3.5-flash")
                     } else if selectedModel == "grok-2-vision" {
                         client = OpenAICompatibleAPI(endpointURL: "\(Self.workerBaseURL)/openai-proxy", provider: "grok", model: "grok-2-vision")
+                    } else if selectedModel == "mistral" {
+                        client = OpenAICompatibleAPI(endpointURL: "http://localhost:11434/v1/chat/completions", provider: "ollama", model: "mistral")
                     } else { // "ollama-local"
                         client = OpenAICompatibleAPI(endpointURL: "http://localhost:11434/v1/chat/completions", provider: "ollama", model: localOllamaModelName)
                     }
@@ -1050,6 +1053,8 @@ final class CompanionManager: ObservableObject {
                         client = OpenAICompatibleAPI(endpointURL: "\(Self.workerBaseURL)/openai-proxy", provider: "gemini", model: "gemini-3.5-flash")
                     } else if selectedModel == "grok-2-vision" {
                         client = OpenAICompatibleAPI(endpointURL: "\(Self.workerBaseURL)/openai-proxy", provider: "grok", model: "grok-2-vision")
+                    } else if selectedModel == "mistral" {
+                        client = OpenAICompatibleAPI(endpointURL: "http://localhost:11434/v1/chat/completions", provider: "ollama", model: "mistral")
                     } else { // "ollama-local"
                         client = OpenAICompatibleAPI(endpointURL: "http://localhost:11434/v1/chat/completions", provider: "ollama", model: localOllamaModelName)
                     }

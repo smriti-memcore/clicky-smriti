@@ -32,6 +32,20 @@ struct CompanionPanelView: View {
                 modelPickerRow
                     .padding(.horizontal, 16)
 
+                if companionManager.selectedModel == "mistral" {
+                    HStack(spacing: 5) {
+                        Image(systemName: "bolt.shield")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(DS.Colors.accentGreen)
+                        Text("Local Mistral via Ollama • No API key needed")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(DS.Colors.textSecondary)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 2)
+                }
+
                 if companionManager.selectedModel == "ollama-local" {
                     localOllamaModelInputRow
                         .padding(.horizontal, 16)
@@ -615,6 +629,7 @@ struct CompanionPanelView: View {
             Spacer()
 
             HStack(spacing: 0) {
+                modelOptionButton(label: "Mistral", modelID: "mistral")
                 modelOptionButton(label: "Sonnet", modelID: "claude-sonnet-4-6")
                 modelOptionButton(label: "Gemini", modelID: "gemini-3.5-flash")
                 modelOptionButton(label: "Grok", modelID: "grok-2-vision")
@@ -640,7 +655,7 @@ struct CompanionPanelView: View {
 
             Spacer()
 
-            TextField("llama3.2-vision", text: Binding(
+            TextField("mistral", text: Binding(
                 get: { companionManager.localOllamaModelName },
                 set: { companionManager.setLocalOllamaModelName($0) }
             ))
