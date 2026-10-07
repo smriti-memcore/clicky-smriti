@@ -114,15 +114,51 @@ final class CompanionManager: ObservableObject {
     /// The local Ollama model name when Ollama is selected. Defaults to "mistral".
     @Published var localOllamaModelName: String = UserDefaults.standard.string(forKey: "localOllamaModelName") ?? "mistral"
 
+    /// Whether local Ollama is currently reachable on http://127.0.0.1:11434.
+    @Published var isOllamaRunning: Bool = false
+    private var ollamaHealthTimer: Timer?
+
     func setSelectedModel(_ model: String) {
         selectedModel = model
         UserDefaults.standard.set(model, forKey: "selectedClaudeModel")
         claudeAPI.model = model
+        if model == "mistral" || model == "ollama-local" {
+            checkOllamaHealth()
+        }
     }
 
     func setLocalOllamaModelName(_ modelName: String) {
         localOllamaModelName = modelName
         UserDefaults.standard.set(modelName, forKey: "localOllamaModelName")
+        checkOllamaHealth()
+    }
+
+    func startOllamaHealthMonitoring() {
+        ollamaHealthTimer?.invalidate()
+        ollamaHealthTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+            self?.checkOllamaHealth()
+        }
+        checkOllamaHealth()
+    }
+
+    func checkOllamaHealth() {
+        guard let url = URL(string: "http://127.0.0.1:11434/api/tags") else { return }
+        Task {
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+            request.timeoutInterval = 2.0
+            do {
+                let (_, response) = try await URLSession.shared.data(for: request)
+                let isRunning = (response as? HTTPURLResponse)?.statusCode == 200
+                await MainActor.run {
+                    self.isOllamaRunning = isRunning
+                }
+            } catch {
+                await MainActor.run {
+                    self.isOllamaRunning = false
+                }
+            }
+        }
     }
 
     /// User preference for whether the Clicky cursor should be shown.
@@ -213,6 +249,7 @@ final class CompanionManager: ObservableObject {
         }
 
         setupAndStartSmriti()
+        startOllamaHealthMonitoring()
     }
 
     /// Called by BlueCursorView after the buddy finishes its pointing
@@ -322,6 +359,8 @@ final class CompanionManager: ObservableObject {
         audioPowerCancellable?.cancel()
         accessibilityCheckTimer?.invalidate()
         accessibilityCheckTimer = nil
+        ollamaHealthTimer?.invalidate()
+        ollamaHealthTimer = nil
     }
 
     func refreshAllPermissions() {
@@ -765,7 +804,7 @@ final class CompanionManager: ObservableObject {
             } catch {
                 ClickyAnalytics.trackResponseError(error: error.localizedDescription)
                 print("⚠️ Companion response error: \(error)")
-                speakCreditsErrorFallback()
+                speakModelErrorFallback(error: error)
             }
 
             if !Task.isCancelled {
@@ -805,11 +844,21 @@ final class CompanionManager: ObservableObject {
         }
     }
 
-    /// Speaks a hardcoded error message using macOS system TTS when API
-    /// credits run out. Uses NSSpeechSynthesizer so it works even when
-    /// ElevenLabs is down.
-    private func speakCreditsErrorFallback() {
-        let utterance = "I'm all out of credits. Please DM Farza and tell him to bring me back to life."
+    /// Speaks a context-aware error message using macOS system TTS when an AI response fails.
+    /// Distinguishes between local Ollama issues (offline, missing model) and cloud API credit issues.
+    private func speakModelErrorFallback(error: Error) {
+        let isLocalOllama = selectedModel == "mistral" || selectedModel == "ollama-local"
+        let utterance: String
+        if isLocalOllama {
+            if !isOllamaRunning {
+                utterance = "Could not connect to Ollama. Please make sure Ollama is open or run ollama serve in Terminal."
+            } else {
+                let modelDisplayName = selectedModel == "mistral" ? "Mistral" : localOllamaModelName
+                utterance = "Ollama encountered an error running \(modelDisplayName). Please check that the model is downloaded."
+            }
+        } else {
+            utterance = "I'm all out of credits. Please check your API proxy or DM Farza."
+        }
         let synthesizer = NSSpeechSynthesizer()
         synthesizer.startSpeaking(utterance)
         voiceState = .responding

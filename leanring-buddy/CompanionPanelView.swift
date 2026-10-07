@@ -33,14 +33,28 @@ struct CompanionPanelView: View {
                     .padding(.horizontal, 16)
 
                 if companionManager.selectedModel == "mistral" {
-                    HStack(spacing: 5) {
-                        Image(systemName: "bolt.shield")
-                            .font(.system(size: 10, weight: .semibold))
-                            .foregroundColor(DS.Colors.accentGreen)
-                        Text("Local Mistral via Ollama • No API key needed")
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(companionManager.isOllamaRunning ? DS.Colors.accentGreen : Color.orange)
+                            .frame(width: 7, height: 7)
+
+                        Text(companionManager.isOllamaRunning
+                            ? "Local Mistral via Ollama • Ready (zero API keys)"
+                            : "Ollama Offline • Start Ollama app or 'ollama serve'")
                             .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(DS.Colors.textSecondary)
+                            .foregroundColor(companionManager.isOllamaRunning ? DS.Colors.textSecondary : Color.orange)
+
                         Spacer()
+
+                        if !companionManager.isOllamaRunning {
+                            Button("Check") {
+                                companionManager.checkOllamaHealth()
+                            }
+                            .font(.system(size: 10, weight: .semibold))
+                            .buttonStyle(.plain)
+                            .foregroundColor(DS.Colors.accentBlue)
+                            .pointerCursor()
+                        }
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 2)
@@ -49,6 +63,32 @@ struct CompanionPanelView: View {
                 if companionManager.selectedModel == "ollama-local" {
                     localOllamaModelInputRow
                         .padding(.horizontal, 16)
+
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(companionManager.isOllamaRunning ? DS.Colors.accentGreen : Color.orange)
+                            .frame(width: 7, height: 7)
+
+                        Text(companionManager.isOllamaRunning
+                            ? "Ollama Connected • Local model"
+                            : "Ollama Offline • Run 'ollama serve' in Terminal")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(companionManager.isOllamaRunning ? DS.Colors.textSecondary : Color.orange)
+
+                        Spacer()
+
+                        if !companionManager.isOllamaRunning {
+                            Button("Check") {
+                                companionManager.checkOllamaHealth()
+                            }
+                            .font(.system(size: 10, weight: .semibold))
+                            .buttonStyle(.plain)
+                            .foregroundColor(DS.Colors.accentBlue)
+                            .pointerCursor()
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 2)
                 }
 
                 smritiMemorySection
@@ -101,6 +141,9 @@ struct CompanionPanelView: View {
         }
         .frame(width: 320)
         .background(panelBackground)
+        .onAppear {
+            companionManager.checkOllamaHealth()
+        }
     }
 
     // MARK: - Header

@@ -189,6 +189,20 @@ class OpenAICompatibleAPI {
                 errorBodyChunks.append(line)
             }
             let errorBody = errorBodyChunks.joined(separator: "\n")
+
+            // If an Ollama model rejects the request because it does not support multimodal image inputs,
+            // automatically retry with images stripped out so the conversation turn succeeds smoothly.
+            if provider == "ollama" && !images.isEmpty && errorBody.lowercased().contains("multimodal") {
+                print("⚠️ Ollama model '\(model)' does not support image inputs. Retrying with text-only prompt...")
+                return try await analyzeImageStreaming(
+                    images: [],
+                    systemPrompt: systemPrompt,
+                    conversationHistory: conversationHistory,
+                    userPrompt: userPrompt,
+                    onTextChunk: onTextChunk
+                )
+            }
+
             throw NSError(
                 domain: "OpenAICompatibleAPI",
                 code: httpResponse.statusCode,
