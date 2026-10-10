@@ -116,7 +116,7 @@ final class MenuBarPanelManager: NSObject {
         }
     }
 
-    @objc private func statusItemClicked() {
+    func togglePanel() {
         if let panel, panel.isVisible {
             hidePanel()
         } else {
@@ -124,9 +124,13 @@ final class MenuBarPanelManager: NSObject {
         }
     }
 
+    @objc private func statusItemClicked() {
+        togglePanel()
+    }
+
     // MARK: - Panel Lifecycle
 
-    private func showPanel() {
+    func showPanel() {
         if panel == nil {
             createPanel()
         }
@@ -138,7 +142,7 @@ final class MenuBarPanelManager: NSObject {
         installClickOutsideMonitor()
     }
 
-    private func hidePanel() {
+    func hidePanel() {
         panel?.orderOut(nil)
         removeClickOutsideMonitor()
     }
@@ -177,24 +181,35 @@ final class MenuBarPanelManager: NSObject {
 
     private func positionPanelBelowStatusItem() {
         guard let panel else { return }
-        guard let buttonWindow = statusItem?.button?.window else { return }
 
-        let statusItemFrame = buttonWindow.frame
-        let gapBelowMenuBar: CGFloat = 4
+        let screen = NSScreen.main ?? NSScreen.screens.first
+        let screenFrame = screen?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
 
         // Calculate the panel's content height from the hosting view's fitting size
         // so the panel snugly wraps the SwiftUI content instead of using a fixed height.
         let fittingSize = panel.contentView?.fittingSize ?? CGSize(width: panelWidth, height: panelHeight)
         let actualPanelHeight = fittingSize.height
+        let gapBelowMenuBar: CGFloat = 4
 
-        // Horizontally center the panel beneath the status item icon
-        let panelOriginX = statusItemFrame.midX - (panelWidth / 2)
-        let panelOriginY = statusItemFrame.minY - actualPanelHeight - gapBelowMenuBar
+        if let buttonWindow = statusItem?.button?.window, buttonWindow.frame.minX > 10, buttonWindow.frame.maxX <= (screen?.frame.maxX ?? 2500) {
+            let statusItemFrame = buttonWindow.frame
+            let panelOriginX = statusItemFrame.midX - (panelWidth / 2)
+            let panelOriginY = statusItemFrame.minY - actualPanelHeight - gapBelowMenuBar
 
-        panel.setFrame(
-            NSRect(x: panelOriginX, y: panelOriginY, width: panelWidth, height: actualPanelHeight),
-            display: true
-        )
+            panel.setFrame(
+                NSRect(x: panelOriginX, y: panelOriginY, width: panelWidth, height: actualPanelHeight),
+                display: true
+            )
+        } else {
+            // Fallback when menu bar icon is hidden/clipped by the notch or overflowing menu bar:
+            // Position neatly in the top-right of the screen just below the menu bar
+            let panelOriginX = screenFrame.maxX - panelWidth - 16
+            let panelOriginY = screenFrame.maxY - actualPanelHeight - gapBelowMenuBar
+            panel.setFrame(
+                NSRect(x: panelOriginX, y: panelOriginY, width: panelWidth, height: actualPanelHeight),
+                display: true
+            )
+        }
     }
 
     // MARK: - Click Outside Dismissal

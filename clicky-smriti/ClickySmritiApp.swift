@@ -57,6 +57,11 @@ final class CompanionAppDelegate: NSObject, NSApplicationDelegate {
         companionManager.stop()
     }
 
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        menuBarPanelManager?.togglePanel()
+        return true
+    }
+
     /// Registers the app as a login item so it launches automatically on
     /// startup. Uses SMAppService which shows the app in System Settings >
     /// General > Login Items, letting the user toggle it off if they want.
