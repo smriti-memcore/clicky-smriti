@@ -374,6 +374,16 @@ final class CompanionManager: ObservableObject {
         globalPushToTalkShortcutMonitor.start()
 
         hasScreenRecordingPermission = WindowPositionManager.hasScreenRecordingPermission()
+        if !hasScreenRecordingPermission {
+            Task {
+                let isWorking = await WindowPositionManager.verifyScreenRecordingViaScreenCaptureKit()
+                if isWorking {
+                    await MainActor.run {
+                        self.hasScreenRecordingPermission = true
+                    }
+                }
+            }
+        }
 
         let micAuthStatus = AVCaptureDevice.authorizationStatus(for: .audio)
         hasMicrophonePermission = micAuthStatus == .authorized

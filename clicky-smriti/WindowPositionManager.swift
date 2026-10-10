@@ -106,6 +106,31 @@ class WindowPositionManager {
         return false
     }
 
+    /// Tests live whether ScreenCaptureKit can access displays.
+    /// If successful, marks permission as confirmed in UserDefaults so the app proceeds immediately.
+    static func verifyScreenRecordingViaScreenCaptureKit() async -> Bool {
+        do {
+            let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
+            if !content.displays.isEmpty {
+                UserDefaults.standard.set(true, forKey: hasPreviouslyConfirmedScreenRecordingPermissionUserDefaultsKey)
+                return true
+            }
+        } catch {
+            return false
+        }
+        return false
+    }
+
+    /// Relaunches the app to apply newly granted macOS WindowServer Screen Recording permissions.
+    static func relaunchApp() {
+        let bundleURL = Bundle.main.bundleURL
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        process.arguments = ["-n", bundleURL.path]
+        try? process.run()
+        NSApp.terminate(nil)
+    }
+
     /// Returns true when the app should proceed with session launch without showing
     /// the permission gate again. This intentionally falls back to the last known
     /// granted state because CGPreflightScreenCaptureAccess() can sometimes return a
