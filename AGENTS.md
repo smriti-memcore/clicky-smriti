@@ -61,7 +61,7 @@ Worker vars: `ELEVENLABS_VOICE_ID`
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| `leanring_buddyApp.swift` | ~89 | Menu bar app entry point. Uses `@NSApplicationDelegateAdaptor` with `CompanionAppDelegate` which creates `MenuBarPanelManager` and starts `CompanionManager`. No main window — the app lives entirely in the status bar. |
+| `ClickySmritiApp.swift` | ~89 | Menu bar app entry point. Uses `@NSApplicationDelegateAdaptor` with `CompanionAppDelegate` which creates `MenuBarPanelManager` and starts `CompanionManager`. No main window — the app lives entirely in the status bar. |
 | `CompanionManager.swift` | ~1500 | Central state machine. Owns dictation, shortcut monitoring, screen capture, Claude API, ElevenLabs TTS, overlay management, and SMRITI local process lifecycle/API calls. Coordinates the full push-to-talk → screenshot → Claude → TTS → pointing pipeline. |
 | `MenuBarPanelManager.swift` | ~243 | NSStatusItem + custom NSPanel lifecycle. Creates the menu bar icon, manages the floating companion panel (show/hide/position), installs click-outside-to-dismiss monitor. |
 | `CompanionPanelView.swift` | ~840 | SwiftUI panel content for the menu bar dropdown. Shows companion status, push-to-talk instructions, model picker, SMRITI status/memory count with configuration copy helpers, permissions UI, and quit button. |
@@ -91,9 +91,9 @@ Worker vars: `ELEVENLABS_VOICE_ID`
 
 ```bash
 # Open in Xcode
-open leanring-buddy.xcodeproj
+open clicky-smriti.xcodeproj
 
-# Select the leanring-buddy scheme, set signing team, Cmd+R to build and run
+# Select the clicky-smriti scheme, set signing team, Cmd+R to build and run
 
 # Known non-blocking warnings: Swift 6 concurrency warnings,
 # deprecated onChange warning in OverlayWindow.swift. Do NOT attempt to fix these.
@@ -153,7 +153,6 @@ IMPORTANT: Follow these naming rules strictly. Clarity is the top priority.
 - Do not add features, refactor code, or make "improvements" beyond what was asked
 - Do not add docstrings, comments, or type annotations to code you did not change
 - Do not try to fix the known non-blocking warnings (Swift 6 concurrency, deprecated onChange)
-- Do not rename the project directory or scheme (the "leanring" typo is intentional/legacy)
 - Do not run `xcodebuild` from the terminal — it invalidates TCC permissions
 
 ## Git Workflow

@@ -47,10 +47,10 @@ cd clicky-smriti
 ### 3. Open in Xcode & Run
 
 ```bash
-open leanring-buddy.xcodeproj
+open clicky-smriti.xcodeproj
 ```
 
-1. Select the **leanring-buddy** scheme and destination **My Mac**.
+1. Select the **clicky-smriti** scheme and destination **My Mac**.
 2. Select your signing team in **Signing & Capabilities**.
 3. Press **Cmd + R** to build and run.
 
@@ -104,7 +104,7 @@ npx wrangler secret put GROK_API_KEY
 npx wrangler deploy
 ```
 
-Update `workerBaseURL` in [`leanring-buddy/CompanionManager.swift`](leanring-buddy/CompanionManager.swift) to your deployed Worker URL.
+Update `workerBaseURL` in [`clicky-smriti/CompanionManager.swift`](clicky-smriti/CompanionManager.swift) to your deployed Worker URL.
 
 ---
 
@@ -123,7 +123,7 @@ Update `workerBaseURL` in [`leanring-buddy/CompanionManager.swift`](leanring-bud
 
 ```
 clicky-smriti/
-├── leanring-buddy/                     # Native SwiftUI / AppKit macOS app
+├── clicky-smriti/                      # Native SwiftUI / AppKit macOS app
 │   ├── CompanionManager.swift          # Core orchestrator: dictation, AI dispatch, SMRITI daemon
 │   ├── CompanionPanelView.swift        # Floating menu bar dropdown UI & model picker
 │   ├── OverlayWindow.swift             # Full-screen transparent blue cursor companion & pointer
