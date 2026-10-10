@@ -391,7 +391,7 @@ final class CompanionManager: ObservableObject {
         if previouslyHadAccessibility != hasAccessibilityPermission
             || previouslyHadScreenRecording != hasScreenRecordingPermission
             || previouslyHadMicrophone != hasMicrophonePermission {
-            print("🔑 Permissions — accessibility: \(hasAccessibilityPermission), screen: \(hasScreenRecordingPermission), mic: \(hasMicrophonePermission), screenContent: \(hasScreenContentPermission)")
+            print("🔑 Permissions — accessibility: \(hasAccessibilityPermission), screen: \(hasScreenRecordingPermission), mic: \(hasMicrophonePermission)")
         }
 
         // Track individual permission grants as they happen
@@ -739,6 +739,12 @@ final class CompanionManager: ObservableObject {
                 let screenCaptures: [CompanionScreenCapture]
                 do {
                     screenCaptures = try await CompanionScreenCaptureUtility.captureAllScreensAsJPEG()
+                    if !screenCaptures.isEmpty {
+                        await MainActor.run {
+                            self.hasScreenRecordingPermission = true
+                            UserDefaults.standard.set(true, forKey: "com.smriti.clicky-smriti.hasPreviouslyConfirmedScreenRecordingPermission")
+                        }
+                    }
                 } catch {
                     print("⚠️ Screen capture unavailable or not permitted: \(error). Continuing without screenshot.")
                     screenCaptures = []

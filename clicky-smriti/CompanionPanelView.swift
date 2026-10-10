@@ -386,7 +386,16 @@ struct CompanionPanelView: View {
             } else {
                 HStack(spacing: 6) {
                     Button(action: {
-                        companionManager.refreshAllPermissions()
+                        Task {
+                            let works = await WindowPositionManager.verifyScreenRecordingViaScreenCaptureKit()
+                            if works {
+                                await MainActor.run {
+                                    companionManager.hasScreenRecordingPermission = true
+                                }
+                            } else {
+                                companionManager.refreshAllPermissions()
+                            }
+                        }
                     }) {
                         Text("Check")
                             .font(.system(size: 11, weight: .semibold))
