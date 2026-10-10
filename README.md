@@ -18,13 +18,30 @@ Works **out-of-the-box with zero API keys** using local **Mistral** via Ollama.
   - **Custom Ollama** (Run any local model: `llama3.2-vision`, `qwen3.5`, etc.)
 - **Element Pointing**: Clicky calculates screen coordinates and flies a blue cursor companion along bezier arcs to point at buttons, windows, and UI elements.
 - **Push-to-Talk**: Hold `Ctrl + Option` anywhere in macOS to speak. Features streaming transcription, live audio waveform feedback, and multi-monitor screen capture.
-- **Native macOS Menu Bar App**: Lives entirely in your status bar (`LSUIElement=true`). No dock clutter, non-activating floating control panel, and auto-dismissing overlays.
+- **Local Web Companion (`http://localhost:7800`)**: A zero-hassle browser companion with instant voice recognition, guaranteed "Stop Speaking" controls [Esc], live screen awareness previews, and full SMRITI memory palace integration.
+- **Native macOS Menu Bar App**: Lives in your status bar (`LSUIElement=true`).
 
 ---
 
-## Quick Start (Zero API Keys)
+## ⚡ Option A: Clicky Web Companion (Recommended — Zero TCC Hassle)
 
-The fastest way to run Clicky with local memory and local AI:
+To run Clicky in your browser with full speech, stop controls, and screen awareness without any macOS permission prompts:
+
+```bash
+./run_web.sh
+```
+This automatically boots the SMRITI memory daemon, connects to your local Ollama instance, and opens **`http://localhost:7800`** in your browser.
+
+- 🎙️ **Voice Recognition**: Click the microphone or hold space to speak.
+- ⏹️ **Stop Speaking**: Click the prominent Stop Speaking button or press **`Esc`** at any moment to silence speech.
+- 📷 **Screen Context**: Real-time snapshot of your desktop for multimodal vision models (`qwen3.5:latest`).
+- 🧠 **SMRITI Memory**: Shared memory palace linking your browser companion with terminal agents and Clicky history.
+
+---
+
+## 🍏 Option B: Native macOS Menu Bar App (Xcode)
+
+The fastest way to build the native status bar app:
 
 ### 1. Prerequisites
 

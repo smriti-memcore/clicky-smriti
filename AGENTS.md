@@ -85,6 +85,9 @@ Worker vars: `ELEVENLABS_VOICE_ID`
 | `WindowPositionManager.swift` | ~262 | Window placement logic, Screen Recording permission flow, and accessibility permission helpers. |
 | `AppBundleConfiguration.swift` | ~28 | Runtime configuration reader for keys stored in the app bundle Info.plist. |
 | `scripts/smriti_local_api.py` | ~220 | Lightweight SMRITI HTTP REST API server daemon. Boots on port 7798, auto-setup dependencies, pre-loads model. |
+| `web/server.py` | ~294 | Local Web Companion server running on localhost:7800 with SMRITI recall/encode, Ollama AI, and native silent screen capture. |
+| `web/index.html` | ~510 | Modern dark Web UI for Clicky with instant Stop Speaking button [Esc], voice recognition, screen preview, and SMRITI badges. |
+| `run_web.sh` | ~30 | One-click launcher for Clicky Web Companion and SMRITI daemon. |
 | `worker/src/index.ts` | ~142 | Cloudflare Worker proxy. Three routes: `/chat` (Claude), `/tts` (ElevenLabs), `/transcribe-token` (AssemblyAI temp token). |
 
 ## Build & Run
