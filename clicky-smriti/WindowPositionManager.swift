@@ -20,7 +20,7 @@ enum PermissionRequestPresentationDestination: Equatable {
 class WindowPositionManager {
     private static var hasAttemptedAccessibilitySystemPromptDuringCurrentLaunch = false
     private static var hasAttemptedScreenRecordingSystemPromptDuringCurrentLaunch = false
-    private static let hasPreviouslyConfirmedScreenRecordingPermissionUserDefaultsKey = "com.learningbuddy.hasPreviouslyConfirmedScreenRecordingPermission"
+    private static let hasPreviouslyConfirmedScreenRecordingPermissionUserDefaultsKey = "com.smriti.clicky-smriti.hasPreviouslyConfirmedScreenRecordingPermission"
 
     /// Returns true when the Mac currently has more than one connected display.
     /// Uses AppKit's screen list, which is available without ScreenCaptureKit's
@@ -32,8 +32,27 @@ class WindowPositionManager {
     // MARK: - Accessibility Permission
 
     /// Returns true if the app has Accessibility permission.
+    /// Checks AXIsProcessTrusted() first, and verifies with a transient CGEvent tap
+    /// to avoid false negatives when macOS TCC cache is delayed.
     static func hasAccessibilityPermission() -> Bool {
-        AXIsProcessTrusted()
+        if AXIsProcessTrusted() {
+            return true
+        }
+        // Direct event-tap check: if macOS allows us to create a session event tap,
+        // accessibility is functionally granted regardless of AXIsProcessTrusted() cache lag.
+        let testTap = CGEvent.tapCreate(
+            tap: .cgSessionEventTap,
+            place: .headInsertEventTap,
+            options: .listenOnly,
+            eventsOfInterest: 1 << CGEventType.flagsChanged.rawValue,
+            callback: { _, _, event, _ in Unmanaged.passUnretained(event) },
+            userInfo: nil
+        )
+        if let testTap {
+            CFMachPortInvalidate(testTap)
+            return true
+        }
+        return false
     }
 
     /// Presents exactly one permission path per tap: the system prompt on the first
@@ -77,11 +96,14 @@ class WindowPositionManager {
 
     /// Returns true if Screen Recording permission is granted.
     static func hasScreenRecordingPermission() -> Bool {
-        let hasScreenRecordingPermissionNow = CGPreflightScreenCaptureAccess()
-        if hasScreenRecordingPermissionNow {
+        if CGPreflightScreenCaptureAccess() {
             UserDefaults.standard.set(true, forKey: hasPreviouslyConfirmedScreenRecordingPermissionUserDefaultsKey)
+            return true
         }
-        return hasScreenRecordingPermissionNow
+        if UserDefaults.standard.bool(forKey: hasPreviouslyConfirmedScreenRecordingPermissionUserDefaultsKey) {
+            return true
+        }
+        return false
     }
 
     /// Returns true when the app should proceed with session launch without showing

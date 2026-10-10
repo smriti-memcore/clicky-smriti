@@ -266,14 +266,9 @@ struct CompanionPanelView: View {
 
             microphonePermissionRow
 
-            accessibilityPermissionRow
-
             screenRecordingPermissionRow
 
-            if companionManager.hasScreenRecordingPermission {
-                screenContentPermissionRow
-            }
-
+            accessibilityPermissionRow
         }
     }
 
