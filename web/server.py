@@ -15,6 +15,7 @@ import base64
 import subprocess
 import urllib.request
 import urllib.error
+from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 
@@ -29,6 +30,8 @@ def capture_screen():
     try:
         # -x: mute sound, -t jpg: save as JPEG
         subprocess.run(["screencapture", "-x", "-t", "jpg", SCREENSHOT_PATH], check=True, capture_output=True)
+        # Downscale retina capture to max 1280px to slash vision tokens and avoid timeouts
+        subprocess.run(["sips", "-Z", "1280", SCREENSHOT_PATH], capture_output=True)
         if os.path.exists(SCREENSHOT_PATH) and os.path.getsize(SCREENSHOT_PATH) > 0:
             with open(SCREENSHOT_PATH, "rb") as f:
                 img_data = f.read()
@@ -115,7 +118,7 @@ def query_ollama(model, system_prompt, user_prompt, image_b64=None):
         data=json.dumps(payload).encode("utf-8"),
         headers={"Content-Type": "application/json"}
     )
-    with urllib.request.urlopen(req, timeout=120) as resp:
+    with urllib.request.urlopen(req, timeout=180) as resp:
         res = json.loads(resp.read().decode("utf-8"))
         choices = res.get("choices", [])
         if choices:
@@ -239,11 +242,13 @@ class ClickyWebHandler(BaseHTTPRequestHandler):
                     [f"- {m.get('content', '')}" for m in memories]
                 )
 
+            now_str = datetime.now().strftime("%A, %B %d, %Y, %I:%M %p")
             system_prompt = (
-                "You are Clicky, a friendly, intelligent AI companion with persistent long-term memory via SMRITI. "
-                "You can see what the user is working on if a screen capture is attached. "
-                "Be direct, insightful, and clear. If referring to code or visual elements on screen, describe them precisely. "
-                "Keep responses conversational and readable."
+                f"You are Clicky, a friendly, intelligent AI companion with persistent long-term memory via SMRITI.\n"
+                f"Today is: {now_str}.\n"
+                f"You can see what the user is working on if a screen capture is attached.\n"
+                f"Be direct, insightful, and clear. If referring to code or visual elements on screen, describe them precisely.\n"
+                f"Keep responses conversational and readable."
             ) + recalled_context
 
             try:

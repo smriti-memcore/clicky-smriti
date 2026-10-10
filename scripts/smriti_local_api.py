@@ -45,19 +45,14 @@ def check_and_reload_palace():
             
         if mtime > last_palace_mtime:
             logger.info("Shared palace updated on disk by another process. Reloading state...")
-            from smriti_memcore.models import SmritiConfig
-            config = SmritiConfig(storage_path=smriti_instance.config.storage_path)
-            
-            # Preserve the warmed embedding model
-            old_model = smriti_instance.vector_store._model
-            
-            # Recreate instance
-            new_instance = SMRITI(config=config)
-            new_instance.vector_store._model = old_model
-            
-            smriti_instance = new_instance
+            from smriti_memcore.palace import SemanticPalace
+            smriti_instance.palace = SemanticPalace(
+                vector_store=smriti_instance.vector_store,
+                storage_path=os.path.join(smriti_instance.config.storage_path, "palace")
+            )
+            smriti_instance.vector_store.load()
             last_palace_mtime = mtime
-            logger.info(f"Palace reloaded. Count: {len(smriti_instance.palace.memories)}")
+            logger.info(f"Palace reloaded cleanly. Count: {len(smriti_instance.palace.memories)}")
     except Exception as e:
         logger.error(f"Failed to check/reload palace: {e}")
 

@@ -588,8 +588,8 @@
 
       <!-- Model Picker -->
       <select id="modelSelect" class="model-selector" onchange="onModelChange()">
+        <option value="mistral:latest">mistral:latest (Fast Text)</option>
         <option value="qwen3.5:latest">qwen3.5:latest (Vision)</option>
-        <option value="mistral:latest">mistral:latest</option>
       </select>
 
       <!-- Smriti Status -->
@@ -657,7 +657,7 @@
     let autoTTS = true;
     let isRecording = false;
     let recognition = null;
-    let currentModel = "qwen3.5:latest";
+    let currentModel = "mistral:latest";
 
     // Setup speech synthesis
     const synth = window.speechSynthesis;
@@ -967,7 +967,7 @@
       appendMessage("user", text);
 
       const sendBtn = document.getElementById("sendBtn");
-      sendBtn.disabled = true;
+      const includeScreen = document.getElementById("includeScreenCheck").checked;
 
       // Add loading row
       const container = document.getElementById("messagesContainer");
@@ -977,13 +977,11 @@
       loadingRow.innerHTML = `
         <div class="message-avatar">⚡</div>
         <div class="message-bubble" style="color: var(--text-dim); font-style: italic;">
-          Thinking & consulting SMRITI...
+          Thinking & consulting SMRITI${includeScreen ? " (analyzing screen)" : ""}...
         </div>
       `;
       container.appendChild(loadingRow);
       container.scrollTop = container.scrollHeight;
-
-      const includeScreen = document.getElementById("includeScreenCheck").checked;
 
       try {
         const res = await fetch("/api/chat", {
