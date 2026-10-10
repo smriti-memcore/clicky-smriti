@@ -35,7 +35,7 @@ struct CompanionPanelView: View {
                 if companionManager.selectedModel == "mistral" {
                     HStack(spacing: 6) {
                         Circle()
-                            .fill(companionManager.isOllamaRunning ? DS.Colors.accentGreen : Color.orange)
+                            .fill(companionManager.isOllamaRunning ? DS.Colors.success : Color.orange)
                             .frame(width: 7, height: 7)
 
                         Text(companionManager.isOllamaRunning
@@ -66,7 +66,7 @@ struct CompanionPanelView: View {
 
                     HStack(spacing: 6) {
                         Circle()
-                            .fill(companionManager.isOllamaRunning ? DS.Colors.accentGreen : Color.orange)
+                            .fill(companionManager.isOllamaRunning ? DS.Colors.success : Color.orange)
                             .frame(width: 7, height: 7)
 
                         Text(companionManager.isOllamaRunning

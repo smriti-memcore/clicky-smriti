@@ -121,6 +121,7 @@ enum DS {
         /// Success — checkmarks, granted status, completion indicators.
         /// Independent green so success states are visually distinct from the blue accent.
         static let success = Color(hex: "#34D399")      // Tailwind Emerald 400
+        static let accentGreen = success
 
         /// Warning — caution messages, manual verification failure explanations.
         static let warning = Color(hex: "#FFB224")            // Radix Amber 9
