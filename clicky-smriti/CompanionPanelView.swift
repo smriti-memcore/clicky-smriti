@@ -129,6 +129,46 @@ struct CompanionPanelView: View {
         }
     }
 
+    // MARK: - Header
+
+    private var panelHeader: some View {
+        HStack {
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(statusDotColor)
+                    .frame(width: 8, height: 8)
+                    .shadow(color: statusDotColor.opacity(0.6), radius: 4)
+
+                Text("Clicky")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(DS.Colors.textPrimary)
+            }
+
+            Spacer()
+
+            Text(statusText)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(DS.Colors.textTertiary)
+
+            Button(action: {
+                NotificationCenter.default.post(name: .clickyDismissPanel, object: nil)
+            }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(DS.Colors.textTertiary)
+                    .frame(width: 20, height: 20)
+                    .background(
+                        Circle()
+                            .fill(Color.white.opacity(0.08))
+                    )
+            }
+            .buttonStyle(.plain)
+            .pointerCursor()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+    }
+
     // MARK: - Interaction Section
 
     private var interactionSection: some View {
