@@ -845,7 +845,7 @@ final class CompanionManager: ObservableObject {
     }
 
     /// Speaks a context-aware error message using macOS system TTS when an AI response fails.
-    /// Distinguishes between local Ollama issues (offline, missing model) and cloud API credit issues.
+    /// Distinguishes between local Ollama issues (offline, missing model) and cloud API connection issues.
     private func speakModelErrorFallback(error: Error) {
         let isLocalOllama = selectedModel == "mistral" || selectedModel == "ollama-local"
         let utterance: String
@@ -857,7 +857,7 @@ final class CompanionManager: ObservableObject {
                 utterance = "Ollama encountered an error running \(modelDisplayName). Please check that the model is downloaded."
             }
         } else {
-            utterance = "I'm all out of credits. Please check your API proxy or DM Farza."
+            utterance = "Could not reach the AI model. Please check your network connection, API proxy, or switch to Mistral for free local use."
         }
         let synthesizer = NSSpeechSynthesizer()
         synthesizer.startSpeaking(utterance)
