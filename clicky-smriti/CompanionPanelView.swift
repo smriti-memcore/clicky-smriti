@@ -387,14 +387,7 @@ struct CompanionPanelView: View {
                 HStack(spacing: 6) {
                     Button(action: {
                         Task {
-                            let works = await WindowPositionManager.verifyScreenRecordingViaScreenCaptureKit()
-                            if works {
-                                await MainActor.run {
-                                    companionManager.hasScreenRecordingPermission = true
-                                }
-                            } else {
-                                companionManager.refreshAllPermissions()
-                            }
+                            await companionManager.verifyScreenRecordingPermissionLive()
                         }
                     }) {
                         Text("Check")

@@ -415,6 +415,15 @@ final class CompanionManager: ObservableObject {
         }
     }
 
+    func verifyScreenRecordingPermissionLive() async {
+        let isWorking = await WindowPositionManager.verifyScreenRecordingViaScreenCaptureKit()
+        if isWorking {
+            hasScreenRecordingPermission = true
+        } else {
+            refreshAllPermissions()
+        }
+    }
+
     /// Triggers the macOS screen content picker by performing a dummy
     /// screenshot capture. Once the user approves, we persist the grant
     /// so they're never asked again during onboarding.
