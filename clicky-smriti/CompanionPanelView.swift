@@ -52,7 +52,7 @@ struct CompanionPanelView: View {
                             }
                             .font(.system(size: 10, weight: .semibold))
                             .buttonStyle(.plain)
-                            .foregroundColor(DS.Colors.accentBlue)
+                            .foregroundColor(DS.Colors.accentText)
                             .pointerCursor()
                         }
                     }
@@ -83,7 +83,7 @@ struct CompanionPanelView: View {
                             }
                             .font(.system(size: 10, weight: .semibold))
                             .buttonStyle(.plain)
-                            .foregroundColor(DS.Colors.accentBlue)
+                            .foregroundColor(DS.Colors.accentText)
                             .pointerCursor()
                         }
                     }

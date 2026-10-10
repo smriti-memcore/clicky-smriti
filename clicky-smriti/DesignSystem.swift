@@ -102,6 +102,7 @@ enum DS {
         /// Accent text — bright blue used for accent-colored text and icons
         /// on dark backgrounds (links, active nav items, highlighted labels).
         static let accentText = blue400
+        static let accentBlue = blue400
 
         /// Very subtle accent tint — used for selected item backgrounds (e.g. current step
         /// in the sidebar). Low opacity so it doesn't overpower.
