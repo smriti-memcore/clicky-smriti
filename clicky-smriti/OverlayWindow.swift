@@ -128,7 +128,7 @@ struct BlueCursorView: View {
     @State private var showWelcome: Bool = true
     @State private var bubbleSize: CGSize = .zero
     @State private var bubbleOpacity: Double = 1.0
-    @State private var cursorOpacity: Double = 0.0
+    @State private var cursorOpacity: Double = 1.0
 
     // MARK: - Buddy Navigation State
 

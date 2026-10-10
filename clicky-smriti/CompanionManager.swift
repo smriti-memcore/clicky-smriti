@@ -238,11 +238,8 @@ final class CompanionManager: ObservableObject {
         // well before the onboarding demo fires at ~40s into the video.
         _ = claudeAPI
 
-        // If the user already completed onboarding AND all permissions are
-        // still granted, show the cursor overlay immediately. If permissions
-        // were revoked (e.g. signing change), don't show the cursor — the
-        // panel will show the permissions UI instead.
-        if hasCompletedOnboarding && allPermissionsGranted && isClickyCursorEnabled {
+        // Show the cursor overlay immediately if enabled so Clicky is visible.
+        if isClickyCursorEnabled {
             overlayWindowManager.hasShownOverlayBefore = true
             overlayWindowManager.showOverlay(onScreens: NSScreen.screens, companionManager: self)
             isOverlayVisible = true
@@ -442,8 +439,8 @@ final class CompanionManager: ObservableObject {
                     UserDefaults.standard.set(true, forKey: "hasScreenContentPermission")
                     ClickyAnalytics.trackPermissionGranted(permission: "screen_content")
 
-                    // If onboarding was already completed, show the cursor overlay now
-                    if hasCompletedOnboarding && allPermissionsGranted && !isOverlayVisible && isClickyCursorEnabled {
+                    // Show the cursor overlay now that permissions are confirmed
+                    if !isOverlayVisible && isClickyCursorEnabled {
                         overlayWindowManager.hasShownOverlayBefore = true
                         overlayWindowManager.showOverlay(onScreens: NSScreen.screens, companionManager: self)
                         isOverlayVisible = true
@@ -542,8 +539,8 @@ final class CompanionManager: ObservableObject {
             transientHideTask?.cancel()
             transientHideTask = nil
 
-            // If the cursor is hidden, bring it back transiently for this interaction
-            if !isClickyCursorEnabled && !isOverlayVisible {
+            // If the cursor overlay is not visible, bring it up for this interaction
+            if !isOverlayVisible {
                 overlayWindowManager.hasShownOverlayBefore = true
                 overlayWindowManager.showOverlay(onScreens: NSScreen.screens, companionManager: self)
                 isOverlayVisible = true
