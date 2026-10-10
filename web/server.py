@@ -125,8 +125,8 @@ def query_ollama(model, system_prompt, user_prompt, image_b64=None):
 class ClickyWebHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         # Keep terminal clean, log only API queries
-        if "/api/" in args[0]:
-            print(f"🌐 [ClickyWeb] {args[0]} - {args[1]}")
+        if args and isinstance(args[0], str) and "/api/" in args[0]:
+            print(f"🌐 [ClickyWeb] {args[0]}")
 
     def send_cors_headers(self):
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -139,7 +139,8 @@ class ClickyWebHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        if self.path == "/" or self.path == "/index.html":
+        clean_path = self.path.split("?")[0]
+        if clean_path == "/" or clean_path == "/index.html":
             index_file = WEB_DIR / "index.html"
             if index_file.exists():
                 self.send_response(200)
@@ -153,7 +154,7 @@ class ClickyWebHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(b"index.html not found")
 
-        elif self.path == "/api/status":
+        elif clean_path == "/api/status":
             models = get_ollama_models()
             smriti_stats = {}
             try:
@@ -176,7 +177,7 @@ class ClickyWebHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps(data).encode("utf-8"))
 
-        elif self.path == "/api/screenshot":
+        elif clean_path == "/api/screenshot":
             if os.path.exists(SCREENSHOT_PATH):
                 self.send_response(200)
                 self.send_header("Content-Type", "image/jpeg")
