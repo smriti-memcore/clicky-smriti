@@ -369,11 +369,9 @@ final class CompanionManager: ObservableObject {
         let currentlyHasAccessibility = WindowPositionManager.hasAccessibilityPermission()
         hasAccessibilityPermission = currentlyHasAccessibility
 
-        if currentlyHasAccessibility {
-            globalPushToTalkShortcutMonitor.start()
-        } else {
-            globalPushToTalkShortcutMonitor.stop()
-        }
+        // Always attempt to start the shortcut monitor. CGEvent.tapCreate safely
+        // manages its own lifecycle and won't crash if permission is still pending.
+        globalPushToTalkShortcutMonitor.start()
 
         hasScreenRecordingPermission = WindowPositionManager.hasScreenRecordingPermission()
 
@@ -597,6 +595,84 @@ final class CompanionManager: ObservableObject {
         }
     }
 
+    // MARK: - Direct Voice / Text Interaction Helpers
+
+    var isVoiceRecordingActive: Bool {
+        voiceState == .listening || buddyDictationManager.isDictationInProgress
+    }
+
+    func toggleVoiceRecording() {
+        if isVoiceRecordingActive {
+            stopVoiceRecording()
+        } else {
+            startVoiceRecording()
+        }
+    }
+
+    func startVoiceRecording() {
+        guard !buddyDictationManager.isDictationInProgress else { return }
+        guard !showOnboardingVideo else { return }
+
+        transientHideTask?.cancel()
+        transientHideTask = nil
+
+        if !isOverlayVisible {
+            overlayWindowManager.hasShownOverlayBefore = true
+            overlayWindowManager.showOverlay(onScreens: NSScreen.screens, companionManager: self)
+            isOverlayVisible = true
+        }
+
+        currentResponseTask?.cancel()
+        elevenLabsTTSClient.stopPlayback()
+        clearDetectedElementLocation()
+
+        ClickyAnalytics.trackPushToTalkStarted()
+
+        pendingKeyboardShortcutStartTask?.cancel()
+        pendingKeyboardShortcutStartTask = Task {
+            await buddyDictationManager.startPushToTalkFromKeyboardShortcut(
+                currentDraftText: "",
+                updateDraftText: { _ in },
+                submitDraftText: { [weak self] finalTranscript in
+                    self?.lastTranscript = finalTranscript
+                    print("🗣️ Companion received transcript: \(finalTranscript)")
+                    ClickyAnalytics.trackUserMessageSent(transcript: finalTranscript)
+                    self?.sendTranscriptToClaudeWithScreenshot(transcript: finalTranscript)
+                }
+            )
+        }
+    }
+
+    func stopVoiceRecording() {
+        ClickyAnalytics.trackPushToTalkReleased()
+        pendingKeyboardShortcutStartTask?.cancel()
+        pendingKeyboardShortcutStartTask = nil
+        buddyDictationManager.stopPushToTalkFromKeyboardShortcut()
+    }
+
+    func sendTextPrompt(_ prompt: String) {
+        let trimmed = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        transientHideTask?.cancel()
+        transientHideTask = nil
+
+        if !isOverlayVisible {
+            overlayWindowManager.hasShownOverlayBefore = true
+            overlayWindowManager.showOverlay(onScreens: NSScreen.screens, companionManager: self)
+            isOverlayVisible = true
+        }
+
+        currentResponseTask?.cancel()
+        elevenLabsTTSClient.stopPlayback()
+        clearDetectedElementLocation()
+
+        lastTranscript = trimmed
+        print("💬 Companion received typed prompt: \(trimmed)")
+        ClickyAnalytics.trackUserMessageSent(transcript: trimmed)
+        sendTranscriptToClaudeWithScreenshot(transcript: trimmed)
+    }
+
     // MARK: - Companion Prompt
 
     private static let companionVoiceResponseSystemPrompt = """
@@ -650,8 +726,14 @@ final class CompanionManager: ObservableObject {
             voiceState = .processing
 
             do {
-                // Capture all connected screens so the AI has full context
-                let screenCaptures = try await CompanionScreenCaptureUtility.captureAllScreensAsJPEG()
+                // Capture all connected screens so the AI has full context (falls back safely if permission missing)
+                let screenCaptures: [CompanionScreenCapture]
+                do {
+                    screenCaptures = try await CompanionScreenCaptureUtility.captureAllScreensAsJPEG()
+                } catch {
+                    print("⚠️ Screen capture unavailable or not permitted: \(error). Continuing without screenshot.")
+                    screenCaptures = []
+                }
 
                 guard !Task.isCancelled else { return }
 
