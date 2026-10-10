@@ -141,6 +141,14 @@ final class CompanionManager: ObservableObject {
         checkOllamaHealth()
     }
 
+    private let localLoopbackSession: URLSession = {
+        let config = URLSessionConfiguration.ephemeral
+        config.waitsForConnectivity = false
+        config.timeoutIntervalForRequest = 2.0
+        config.timeoutIntervalForResource = 2.0
+        return URLSession(configuration: config)
+    }()
+
     func checkOllamaHealth() {
         guard let url = URL(string: "http://127.0.0.1:11434/api/tags") else { return }
         Task {
@@ -148,7 +156,7 @@ final class CompanionManager: ObservableObject {
             request.httpMethod = "GET"
             request.timeoutInterval = 2.0
             do {
-                let (_, response) = try await URLSession.shared.data(for: request)
+                let (_, response) = try await localLoopbackSession.data(for: request)
                 let isRunning = (response as? HTTPURLResponse)?.statusCode == 200
                 await MainActor.run {
                     self.isOllamaRunning = isRunning
