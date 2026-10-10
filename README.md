@@ -6,23 +6,23 @@ Works **out-of-the-box with zero API keys** using local **Mistral** via Ollama.
 
 ---
 
-## ✨ Features
+## Features
 
-- 🧠 **SMRITI Long-Term Memory**: Shared local memory layer (`~/.smriti/global`) connecting Clicky, Smriti Desktop App, Claude Code, Gemini CLI, and terminal agents. Every conversation turn is encoded into your memory palace and recalled in future conversations.
-- ⚡ **Zero API Keys by Default**: Runs entirely on your Mac using local **Mistral** via Ollama. No credit cards, proxies, or cloud subscriptions required.
-- 🤖 **Multi-Model Support**: Switch seamlessly in the menu bar panel between:
+- **SMRITI Long-Term Memory**: Shared local memory layer (`~/.smriti/global`) connecting Clicky, Smriti Desktop App, Claude Code, Gemini CLI, and terminal agents. Every conversation turn is encoded into your memory palace and recalled in future conversations.
+- **Zero API Keys by Default**: Runs entirely on your Mac using local **Mistral** via Ollama. No credit cards, proxies, or cloud subscriptions required.
+- **Multi-Model Support**: Switch seamlessly in the menu bar panel between:
   - **Mistral** (Local via Ollama — *Default*, 0 API keys)
   - **Claude** (Sonnet 4.6 / Opus 4.6 via Worker proxy)
   - **Gemini** (3.5 Flash via Worker proxy)
   - **Grok** (2 Vision via Worker proxy)
   - **Custom Ollama** (Run any local model: `llama3.2-vision`, `qwen3.5`, etc.)
-- 🎯 **Element Pointing**: Clicky calculates screen coordinates and flies a blue cursor companion along bezier arcs to point at buttons, windows, and UI elements.
-- 🎙️ **Push-to-Talk**: Hold `Ctrl + Option` anywhere in macOS to speak. Features streaming transcription, live audio waveform feedback, and multi-monitor screen capture.
-- 🔇 **Native macOS Menu Bar App**: Lives entirely in your status bar (`LSUIElement=true`). No dock clutter, non-activating floating control panel, and auto-dismissing overlays.
+- **Element Pointing**: Clicky calculates screen coordinates and flies a blue cursor companion along bezier arcs to point at buttons, windows, and UI elements.
+- **Push-to-Talk**: Hold `Ctrl + Option` anywhere in macOS to speak. Features streaming transcription, live audio waveform feedback, and multi-monitor screen capture.
+- **Native macOS Menu Bar App**: Lives entirely in your status bar (`LSUIElement=true`). No dock clutter, non-activating floating control panel, and auto-dismissing overlays.
 
 ---
 
-## 🚀 Quick Start (Zero API Keys)
+## Quick Start (Zero API Keys)
 
 The fastest way to run Clicky with local memory and local AI:
 
@@ -54,7 +54,7 @@ open leanring-buddy.xcodeproj
 2. Select your signing team in **Signing & Capabilities**.
 3. Press **Cmd + R** to build and run.
 
-> ⚠️ **Important**: Do **NOT** run `xcodebuild` from the terminal — building from terminal can invalidate macOS TCC privacy permissions (Screen Recording, Accessibility, Microphone). Always build directly within Xcode.
+> **Important**: Do **NOT** run `xcodebuild` from the terminal — building from terminal can invalidate macOS TCC privacy permissions (Screen Recording, Accessibility, Microphone). Always build directly within Xcode.
 
 ### 4. Grant Permissions
 
@@ -67,7 +67,7 @@ Clicky will automatically boot its internal **SMRITI Local API daemon** on port 
 
 ---
 
-## 🧠 SMRITI Memory Architecture
+## SMRITI Memory Architecture
 
 Clicky integrates the **SMRITI Neuro-Inspired Memory Architecture** to maintain a persistent episodic and semantic memory palace across your workflow:
 
@@ -84,7 +84,7 @@ cd Smriti-Desktop-App && npm install && npm run tauri dev
 
 ---
 
-## ☁️ Optional Cloud Models & Proxy Setup
+## Optional Cloud Models & Proxy Setup
 
 If you wish to use cloud models (Claude Sonnet 4.6, Gemini 3.5 Flash, Grok 2 Vision) or ElevenLabs realistic text-to-speech, set up the Cloudflare Worker proxy:
 
@@ -108,7 +108,7 @@ Update `workerBaseURL` in [`leanring-buddy/CompanionManager.swift`](leanring-bud
 
 ---
 
-## ⌨️ Shortcuts & Controls
+## Shortcuts & Controls
 
 | Shortcut / Action | Function |
 | :--- | :--- |
@@ -119,7 +119,7 @@ Update `workerBaseURL` in [`leanring-buddy/CompanionManager.swift`](leanring-bud
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 clicky-smriti/
@@ -140,11 +140,11 @@ clicky-smriti/
 
 ---
 
-## 🤝 Acknowledgments & Credits
+## Acknowledgments & Credits
 
 - Built on top of the original open-source [Clicky](https://github.com/farzaa/clicky) by [@farzatv](https://x.com/farzatv).
 - Enhanced with persistent long-term memory, multi-model execution, and zero-key local inference by the [**SMRITI**](https://github.com/smriti-memcore) team.
 
-## 📄 License
+## License
 
 MIT License. See [LICENSE](LICENSE) for details.
