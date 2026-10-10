@@ -1,166 +1,81 @@
-# Clicky with SMRITI (`clicky-smriti`)
+# Clicky Companion with SMRITI (`clicky-smriti`)
 
-An intelligent macOS menu bar companion that lives next to your cursor, sees your screen, talks with you, points at UI elements across your monitors, and remembers everything across sessions using **SMRITI local-first long-term memory**.
+An intelligent local AI companion that lives in your browser, sees your screen, talks with you, provides instant voice controls with guaranteed speech stop (`Esc`), and remembers everything across sessions using **SMRITI local-first long-term memory**.
 
-Works **out-of-the-box with zero API keys** using local **Mistral** via Ollama.
-
----
-
-## Features
-
-- **SMRITI Long-Term Memory**: Shared local memory layer (`~/.smriti/global`) connecting Clicky, Smriti Desktop App, Claude Code, Gemini CLI, and terminal agents. Every conversation turn is encoded into your memory palace and recalled in future conversations.
-- **Zero API Keys by Default**: Runs entirely on your Mac using local **Mistral** via Ollama. No credit cards, proxies, or cloud subscriptions required.
-- **Multi-Model Support**: Switch seamlessly in the menu bar panel between:
-  - **Mistral** (Local via Ollama — *Default*, 0 API keys)
-  - **Claude** (Sonnet 4.6 / Opus 4.6 via Worker proxy)
-  - **Gemini** (3.5 Flash via Worker proxy)
-  - **Grok** (2 Vision via Worker proxy)
-  - **Custom Ollama** (Run any local model: `llama3.2-vision`, `qwen3.5`, etc.)
-- **Element Pointing**: Clicky calculates screen coordinates and flies a blue cursor companion along bezier arcs to point at buttons, windows, and UI elements.
-- **Push-to-Talk**: Hold `Ctrl + Option` anywhere in macOS to speak. Features streaming transcription, live audio waveform feedback, and multi-monitor screen capture.
-- **Local Web Companion (`http://localhost:7800`)**: A zero-hassle browser companion with instant voice recognition, guaranteed "Stop Speaking" controls [Esc], live screen awareness previews, and full SMRITI memory palace integration.
-- **Native macOS Menu Bar App**: Lives in your status bar (`LSUIElement=true`).
+Works **out-of-the-box with zero API keys** using local models via Ollama.
 
 ---
 
-## ⚡ Option A: Clicky Web Companion (Recommended — Zero TCC Hassle)
-
-To run Clicky in your browser with full speech, stop controls, and screen awareness without any macOS permission prompts:
+## ⚡ Quick Start
 
 ```bash
+# 1. Clone the repository
+git clone https://github.com/smriti-memcore/clicky-smriti.git
+cd clicky-smriti
+
+# 2. Launch Clicky
 ./run_web.sh
 ```
-This automatically boots the SMRITI memory daemon, connects to your local Ollama instance, and opens **`http://localhost:7800`** in your browser.
 
-- 🎙️ **Voice Recognition**: Click the microphone or hold space to speak.
-- ⏹️ **Stop Speaking**: Click the prominent Stop Speaking button or press **`Esc`** at any moment to silence speech.
-- 📷 **Screen Context**: Real-time snapshot of your desktop for multimodal vision models (`qwen3.5:latest`).
-- 🧠 **SMRITI Memory**: Shared memory palace linking your browser companion with terminal agents and Clicky history.
+This single command:
+1. Boots the local **SMRITI memory daemon** on port `7798` (`~/.smriti/global`).
+2. Starts the **Clicky Web Companion server** on port `7800`.
+3. Opens **`http://localhost:7800`** in your default browser.
 
 ---
 
-## 🍏 Option B: Native macOS Menu Bar App (Xcode)
+## 🌟 Key Features
 
-The fastest way to build the native status bar app:
+- **⏹️ Instant Speech Stop Control**: Never worry about AI talking non-stop. Hit **`Esc`** at any moment or click the prominent red **`⏹️ Stop Speaking`** button to immediately silence speech via `window.speechSynthesis.cancel()`.
+- **🔊 Voice Toggle**: Switch voice output on or off with a single click.
+- **📷 Native Screen Awareness**: Automatically captures your active desktop silently via macOS's native `screencapture` CLI, downscaled via `sips` to optimize vision token compute. No TCC permission loops or modal crashes.
+- **🧠 SMRITI Long-Term Memory**: Shared local memory layer (`~/.smriti/global`) connecting Clicky, Smriti Desktop App, Claude Code, Gemini CLI, and terminal agents. Every conversation turn is encoded into your memory palace and recalled in future conversations.
+- **🎙️ Web Speech Dictation**: Click the **`🎙️`** microphone button to speak with real-time live transcription.
+- **🦙 Zero API Keys via Ollama**: Runs entirely on your Mac using local models:
+  - **`mistral:latest`** (Default — ultra-fast text chat)
+  - **`qwen3.5:latest`** (Multimodal vision chat for inspecting screen contents)
+  - Any custom model in your local Ollama library.
 
-### 1. Prerequisites
+---
 
-- **macOS 14.2+** (Apple Silicon recommended)
-- **Xcode 15+**
+## 📁 Repository Structure
+
+```
+├── run_web.sh              # One-click launcher for SMRITI + Web Companion
+├── web/
+│   ├── server.py           # Local HTTP companion server (port 7800)
+│   └── index.html          # Modern dark Web UI with voice & screen controls
+├── scripts/
+│   └── smriti_local_api.py # SMRITI REST API daemon (port 7798)
+├── worker/
+│   └── src/index.ts        # Optional Cloudflare Worker proxy for cloud models
+├── AGENTS.md               # Architecture spec and agent instructions
+└── README.md               # Project documentation
+```
+
+---
+
+## 🧠 SMRITI Memory Architecture
+
+Clicky integrates the **SMRITI Neuro-Inspired Memory Architecture** to maintain a persistent episodic and semantic memory palace across your workflow:
+
+- **Local Storage**: All memories are stored locally on your machine at `~/.smriti/global/palace/palace.json`.
+- **Cross-Tool Sharing**: Memories created in Clicky are instantly accessible by terminal agents and the [**Smriti Desktop App**](https://github.com/smriti-memcore/Smriti-Desktop-App).
+- **Local HTTP Daemon**: Clicky manages a high-performance HTTP server on `http://127.0.0.1:7798` that automatically handles memory recall before each AI turn and encodes new conversational knowledge.
+
+---
+
+## 🛠️ Prerequisites
+
+- **macOS** (Apple Silicon recommended)
 - **Python 3.10+** (with `pip3`)
-- **Ollama** for the local Mistral model:
+- **Ollama** for local AI models:
   ```bash
   brew install ollama
   ollama run mistral
   ```
 
-### 2. Clone the Repository
-
-```bash
-git clone https://github.com/smriti-memcore/clicky-smriti.git
-cd clicky-smriti
-```
-
-### 3. Open in Xcode & Run
-
-```bash
-open clicky-smriti.xcodeproj
-```
-
-1. Select the **clicky-smriti** scheme and destination **My Mac**.
-2. Select your signing team in **Signing & Capabilities**.
-3. Press **Cmd + R** to build and run.
-
-> **Important**: Do **NOT** run `xcodebuild` from the terminal — building from terminal can invalidate macOS TCC privacy permissions (Screen Recording, Accessibility, Microphone). Always build directly within Xcode.
-
-### 4. Grant Permissions
-
-When Clicky opens in your menu bar, click the icon and grant:
-- **Accessibility**: For the global `Ctrl + Option` push-to-talk shortcut
-- **Screen Recording**: For multi-monitor visual perception
-- **Microphone**: For voice input
-
-Clicky will automatically boot its internal **SMRITI Local API daemon** on port `7798` and connect to your local Ollama server.
-
 ---
-
-## SMRITI Memory Architecture
-
-Clicky integrates the **SMRITI Neuro-Inspired Memory Architecture** to maintain a persistent episodic and semantic memory palace across your workflow:
-
-- **Local Storage**: All memories are stored locally on your machine at `~/.smriti/global/palace/palace.json`.
-- **Cross-Tool Sharing**: Memories created in Clicky are instantly accessible by the [**Smriti Desktop App**](https://github.com/smriti-memcore/Smriti-Desktop-App) and command-line AI coding assistants.
-- **Local HTTP Daemon**: Clicky manages a high-performance `ThreadingHTTPServer` on `http://127.0.0.1:7798` that automatically handles memory recall before each AI turn and encodes new conversational knowledge.
-- **Auto-Installation**: If `smriti-memcore` is missing, Clicky automatically installs it to your Python environment on launch.
-
-To inspect or consolidate your memory palace graphically, run the [Smriti Desktop App](https://github.com/smriti-memcore/Smriti-Desktop-App):
-```bash
-git clone https://github.com/smriti-memcore/Smriti-Desktop-App.git
-cd Smriti-Desktop-App && npm install && npm run tauri dev
-```
-
----
-
-## Optional Cloud Models & Proxy Setup
-
-If you wish to use cloud models (Claude Sonnet 4.6, Gemini 3.5 Flash, Grok 2 Vision) or ElevenLabs realistic text-to-speech, set up the Cloudflare Worker proxy:
-
-```bash
-cd worker
-npm install
-
-# Configure secrets
-npx wrangler secret put ANTHROPIC_API_KEY
-npx wrangler secret put ASSEMBLYAI_API_KEY
-npx wrangler secret put ELEVENLABS_API_KEY
-# Optional for Gemini / Grok
-npx wrangler secret put GEMINI_API_KEY
-npx wrangler secret put GROK_API_KEY
-
-# Set ElevenLabs Voice ID in wrangler.toml, then deploy:
-npx wrangler deploy
-```
-
-Update `workerBaseURL` in [`clicky-smriti/CompanionManager.swift`](clicky-smriti/CompanionManager.swift) to your deployed Worker URL.
-
----
-
-## Shortcuts & Controls
-
-| Shortcut / Action | Function |
-| :--- | :--- |
-| **Hold `Ctrl + Option`** | Push-to-talk voice capture + screen perception |
-| **Release `Ctrl + Option`** | Finalize audio and generate streaming response |
-| **Click Menu Bar Icon** | Open companion settings, model selector, & memory palace stats |
-| **Model Selector** | Toggle between Mistral (Local), Sonnet, Gemini, Grok, and Ollama |
-
----
-
-## Project Structure
-
-```
-clicky-smriti/
-├── clicky-smriti/                      # Native SwiftUI / AppKit macOS app
-│   ├── CompanionManager.swift          # Core orchestrator: dictation, AI dispatch, SMRITI daemon
-│   ├── CompanionPanelView.swift        # Floating menu bar dropdown UI & model picker
-│   ├── OverlayWindow.swift             # Full-screen transparent blue cursor companion & pointer
-│   ├── OpenAICompatibleAPI.swift       # Client for Mistral (Ollama), Gemini, and Grok
-│   ├── ClaudeAPI.swift                 # Streaming Claude vision client
-│   ├── BuddyDictationManager.swift     # Push-to-talk audio capture and STT pipeline
-│   ├── ElevenLabsTTSClient.swift       # TTS playback with macOS system voice fallback
-│   ├── DesignSystem.swift              # Consistent typography, spacing, and dark palette
-│   └── scripts/smriti_local_api.py     # High-performance SMRITI REST API server
-├── worker/                             # Optional Cloudflare Worker API proxy
-├── AGENTS.md                           # Specification and conventions for AI coding agents
-└── README.md
-```
-
----
-
-## Acknowledgments & Credits
-
-- Built on top of the original open-source [Clicky](https://github.com/farzaa/clicky) by [@farzatv](https://x.com/farzatv).
-- Enhanced with persistent long-term memory, multi-model execution, and zero-key local inference by the [**SMRITI**](https://github.com/smriti-memcore) team.
 
 ## License
 
